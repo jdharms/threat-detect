@@ -13,13 +13,29 @@ type Client struct {
 }
 
 func NewClient(path string) (*Client, error) {
-	sqliteDb, err := sqlx.Open("sqlite3", fmt.Sprintf("file:%s", path))
+	stmt := `CREATE TABLE IF NOT EXISTS detail
+	(
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		response_code TEXT,
+		ip_address TEXT
+	);`
+
+	sqliteDb, err := sqlx.Open("sqlite3", fmt.Sprintf("file:%s?_journal_mode=WAL", path))
 	if err != nil {
 		return nil, err
 	}
 
 	err = sqliteDb.Ping()
 	if err != nil {
+		sqliteDb.Close()
+		return nil, err
+	}
+
+	_, err = sqliteDb.Exec(stmt)
+	if err != nil {
+		sqliteDb.Close()
 		return nil, err
 	}
 
