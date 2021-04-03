@@ -1,0 +1,21 @@
+scalar Time
+
+type IPDetails {
+  uuid: ID!
+  created_at: Time!
+  updated_at: Time!
+  response_code: String!
+  ip_address: String!
+}
+
+type Query {
+  getIPDetails(ip: String!): IPDetails
+}
+
+type EnqueuePayload {
+  queued_ips: [String!]!
+}
+
+type Mutation {
+  enqueue(ip: [String!]!): EnqueuePayload
+}
