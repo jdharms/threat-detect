@@ -1,19 +1,26 @@
 FROM golang:alpine
 
-WORKDIR /go/src/app
-COPY . .
-
 RUN apk --update upgrade && \
     apk add gcc && \
     apk add g++ && \
     apk add sqlite && \
     rm -rf /var/cache/apk/*
 
-# TODO figure out database
-
 ENV PORT 8080
+ENV DB_PATH /app/data/database.db
+VOLUME /app/data
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+WORKDIR /go/src/app
 
-CMD ["server"]
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+COPY . .
+RUN go build -o server server.go
+
+WORKDIR /dist
+RUN cp /go/src/app/server /dist/server
+
+EXPOSE 8080
+CMD ["/dist/server"]

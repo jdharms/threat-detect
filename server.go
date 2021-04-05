@@ -18,6 +18,7 @@ import (
 )
 
 const defaultPort = "8080"
+const defaultDBPath = "/.data.db"
 
 func main() {
 	port := os.Getenv("PORT")
@@ -25,7 +26,12 @@ func main() {
 		port = defaultPort
 	}
 
-	dbClient, err := db.NewClient("./data.db")
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = defaultDBPath
+	}
+
+	dbClient, err := db.NewClient(dbPath)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("could not open database: %s", err.Error()))
 	}
