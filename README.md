@@ -66,3 +66,10 @@ The project is organized as follows:
 `./internal/dnsbl`: This package provides functionality for looking up an IPv4 address using a DNSBL.  The included implementation uses Spamhaus's DNSBL.
 
 `./graph`: This package contains the generated code from gqlgen as well as the implementations of the query/mutation provided.  This is the "business logic" of the application, with the rest of the packages above providing functionality that will be depended on by the GraphQL Resolver.  All of these packages have unit tests.
+
+### Dependencies
+* github.com/99designs/gqlgen, github.com/vektah/gqlparser/v2 -- Used to bootstrap the GraphQL service and provides a framework for dependency injection.
+* github.com/DATA-DOG/go-sqlmock -- Used for writing unit tests for the persistence layer. go-sqlmock allows us to inject a mock database into our persistence code and assert on the queries/execs called.
+* github.com/google/uuid -- This library is used to generate random UUIDs.
+* github.com/jmoiron/sqlx -- A very thin abstraction layer on top of the standard library sql package.
+* github.com/mattn/go-sqlite3 -- Provides the database driver for SQLite3
