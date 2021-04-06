@@ -5,6 +5,7 @@
 *.so
 *.dylib
 server
+detect
 
 # Database file
 *.db*

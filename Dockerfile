@@ -22,5 +22,5 @@ RUN go build -o server server.go
 WORKDIR /dist
 RUN cp /go/src/app/server /dist/server
 
-EXPOSE 8080
+EXPOSE ${PORT}
 CMD ["/dist/server"]

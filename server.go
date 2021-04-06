@@ -11,14 +11,13 @@ import (
 	"github.com/jdharms/threat-detect/internal/dnsbl"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
 
 	"github.com/jdharms/threat-detect/graph"
 	"github.com/jdharms/threat-detect/graph/generated"
 )
 
 const defaultPort = "8080"
-const defaultDBPath = "/.data.db"
+const defaultDBPath = "./data.db"
 
 func main() {
 	port := os.Getenv("PORT")
@@ -45,11 +44,10 @@ func main() {
 		DNSBL:  blClient,
 	}
 
+	fmt.Printf("server running on port %s\n", port)
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", auth.NewBasicAuth(auth.NewMapValidator(map[string]string{"secureworks": "supersecret"}))(srv))
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

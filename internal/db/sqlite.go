@@ -2,7 +2,9 @@ package db
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jdharms/threat-detect/graph/model"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -26,7 +28,7 @@ var initStmt = `CREATE TABLE IF NOT EXISTS detail
 );`
 
 func NewClient(path string) (*Client, error) {
-	sqliteDb, err := sqliteDbOpener(fmt.Sprintf("file:%s?_journal_mode=WAL", path))
+	sqliteDb, err := sqliteDbOpener(fmt.Sprintf("file:%s?_journal_mode=WAL&_txlock=immediate", path))
 	if err != nil {
 		return nil, err
 	}
@@ -50,15 +52,50 @@ func (c *Client) Close() error {
 	return c.db.Close()
 }
 
+// AddIPDetails takes a partially filled in IPDetails structure
+// and either adds it to the database or updates an existing record
+// if it exists.  This process is transparent to the caller.
 func (c *Client) AddIPDetails(details model.IPDetails) error {
-	_, err := c.db.Exec(
-		"INSERT INTO detail(id, created_at, updated_at, response_code, ip_address) VALUES ($1, $2, $3, $4, $5)",
-		details.UUID,
-		details.CreatedAt,
-		details.UpdatedAt,
+	id := uuid.New().String()
+	createdAt := time.Now()
+	updatedAt := createdAt
+
+	var existingDetails IPDetails
+	tx, err := c.db.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %w", err)
+	}
+	rows, err := tx.Query("SELECT * FROM detail WHERE ip_address = ?", details.IPAddress)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error checking for existing details: %w", err)
+	}
+	if rows.Next() {
+		err = rows.Scan(&existingDetails.UUID, &existingDetails.CreatedAt, &existingDetails.UpdatedAt, &existingDetails.ResponseCode, &existingDetails.IPAddress)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("error scanning db result: %w", err)
+		}
+		id = existingDetails.UUID
+		createdAt = existingDetails.CreatedAt
+	}
+
+	_, err = tx.Exec(
+		"INSERT OR REPLACE INTO detail(id, created_at, updated_at, response_code, ip_address) VALUES ($1, $2, $3, $4, $5)",
+		id,
+		createdAt,
+		updatedAt,
 		details.ResponseCode,
 		details.IPAddress,
 	)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error inserting row")
+	}
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error commiting tx: %w", err)
+	}
 
 	return err
 }

@@ -20,7 +20,7 @@ func dbModelToGraphQL(d IPDetails) model.IPDetails {
 		CreatedAt:    d.CreatedAt,
 		UpdatedAt:    d.UpdatedAt,
 		ResponseCode: d.ResponseCode,
-		IPAddress:    d.IPAddress,
+		IPAddress:    d.IPAddress, //
 	}
 
 	return res

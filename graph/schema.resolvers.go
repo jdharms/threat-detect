@@ -8,8 +8,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/jdharms/threat-detect/graph/generated"
 	"github.com/jdharms/threat-detect/graph/model"
 )
@@ -26,9 +24,9 @@ func (r *mutationResolver) Enqueue(ctx context.Context, ip []string) (*model.Enq
 			}
 
 			err = r.Adder.AddIPDetails(model.IPDetails{
-				UUID:         uuid.New().String(),
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
+				UUID:         "",
+				CreatedAt:    time.Time{},
+				UpdatedAt:    time.Time{},
 				ResponseCode: res,
 				IPAddress:    address,
 			})
