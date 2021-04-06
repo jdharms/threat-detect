@@ -12,17 +12,21 @@ type Client struct {
 	db *sqlx.DB
 }
 
-func NewClient(path string) (*Client, error) {
-	stmt := `CREATE TABLE IF NOT EXISTS detail
-	(
-		id TEXT PRIMARY KEY,
-		created_at DATETIME,
-		updated_at DATETIME,
-		response_code TEXT,
-		ip_address TEXT
-	);`
+var sqliteDbOpener = func(dataSource string) (*sqlx.DB, error) {
+	return sqlx.Open("sqlite3", dataSource)
+}
 
-	sqliteDb, err := sqlx.Open("sqlite3", fmt.Sprintf("file:%s?_journal_mode=WAL", path))
+var initStmt = `CREATE TABLE IF NOT EXISTS detail
+(
+	id TEXT PRIMARY KEY,
+	created_at DATETIME,
+	updated_at DATETIME,
+	response_code TEXT,
+	ip_address TEXT
+);`
+
+func NewClient(path string) (*Client, error) {
+	sqliteDb, err := sqliteDbOpener(fmt.Sprintf("file:%s?_journal_mode=WAL", path))
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +37,7 @@ func NewClient(path string) (*Client, error) {
 		return nil, err
 	}
 
-	_, err = sqliteDb.Exec(stmt)
+	_, err = sqliteDb.Exec(initStmt)
 	if err != nil {
 		sqliteDb.Close()
 		return nil, err
