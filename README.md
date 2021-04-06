@@ -48,7 +48,7 @@ to persist its data through multiple executions.  Alternatively, use the Docker 
 ## Development
 Clone the repository locally
 
-```$ git clone https://github.com/jdharms/threat-detect.git`
+```$ git clone https://github.com/jdharms/threat-detect.git```
 
 Ensure a recent version of Go is installed on your machine, as well as sqlite3. (Go 1.15 was used to develop this.)
 
