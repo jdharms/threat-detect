@@ -8,6 +8,8 @@ import (
 
 type ValidationFunc func(username, password string) bool
 
+type AuthorizationCtx string
+
 func NewBasicAuth(validator ValidationFunc) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +20,7 @@ func NewBasicAuth(validator ValidationFunc) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), "authorizedUser", username)
+			ctx := context.WithValue(r.Context(), AuthorizationCtx("authorizedUser"), username)
 
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)

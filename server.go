@@ -37,7 +37,7 @@ func main() {
 	}
 	defer dbClient.Close()
 
-	blClient := dnsbl.SpamhausClient{}
+	blClient := dnsbl.NewSpamhausClient()
 
 	resolver := &graph.Resolver{
 		Adder:  dbClient,

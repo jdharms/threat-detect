@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,23 +17,26 @@ import (
 func (r *mutationResolver) Enqueue(ctx context.Context, ip []string) (*model.EnqueuePayload, error) {
 	queued := []string{}
 	for _, addr := range ip {
-		res, err := r.DNSBL.Query(addr)
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Adder.AddIPDetails(model.IPDetails{
-			UUID:         uuid.New().String(),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
-			ResponseCode: res,
-			IPAddress:    addr,
-		})
-		if err != nil {
-			return nil, err
-		}
-
 		queued = append(queued, addr)
+		go func(address string) {
+			res, err := r.DNSBL.Query(address)
+			if err != nil {
+				log.Printf("error querying DNSBL: %s", err.Error())
+				return
+			}
+
+			err = r.Adder.AddIPDetails(model.IPDetails{
+				UUID:         uuid.New().String(),
+				CreatedAt:    time.Now(),
+				UpdatedAt:    time.Now(),
+				ResponseCode: res,
+				IPAddress:    address,
+			})
+			if err != nil {
+				log.Printf("error adding ip details: %s", err.Error())
+				return
+			}
+		}(addr)
 	}
 	return &model.EnqueuePayload{
 		QueuedIps: queued,
