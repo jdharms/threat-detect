@@ -468,7 +468,7 @@ func TestSqliteGetIPDetailsNotFound(t *testing.T) {
 	}
 
 	_, err = db.GetIPDetails("127.0.0.1")
-	if err == nil || !strings.Contains(err.Error(), "no rows") {
+	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Error("expected an 'error not found'")
 	}
 

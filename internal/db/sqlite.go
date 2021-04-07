@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,8 +15,8 @@ type Client struct {
 	db *sqlx.DB
 }
 
-var sqliteDbOpener = func(dataSource string) (*sqlx.DB, error) {
-	return sqlx.Open("sqlite3", dataSource)
+var sqliteDbOpener = func(path string) (*sqlx.DB, error) {
+	return sqlx.Open("sqlite3", path)
 }
 
 var initStmt = `CREATE TABLE IF NOT EXISTS detail
@@ -61,6 +62,9 @@ func (c *Client) AddIPDetails(details model.IPDetails) error {
 	updatedAt := createdAt
 
 	var existingDetails IPDetails
+
+	// We open an "immediate" transaction here to ensure nobody adds
+	// a record for the same IP address before we do.
 	tx, err := c.db.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
@@ -104,6 +108,9 @@ func (c *Client) GetIPDetails(addr string) (model.IPDetails, error) {
 	var details IPDetails
 	var res model.IPDetails
 	if err := c.db.Get(&details, "SELECT * FROM detail WHERE ip_address = ?", addr); err != nil {
+		if strings.Contains(err.Error(), "no rows") {
+			return res, newErrNotFound(addr, err)
+		}
 		return res, err
 	}
 

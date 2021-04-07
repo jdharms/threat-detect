@@ -20,12 +20,12 @@ func (qc queryChecker) Query(ip string) (string, error) {
 }
 
 type adderChecker struct {
-	repository []model.IPDetails
+	repository chan model.IPDetails
 	wg         *sync.WaitGroup
 }
 
 func (d *adderChecker) AddIPDetails(m model.IPDetails) error {
-	d.repository = append(d.repository, m)
+	d.repository <- m
 	d.wg.Done()
 	return nil
 }
@@ -38,7 +38,7 @@ func TestEnqueue(t *testing.T) {
 	adderWg := sync.WaitGroup{}
 	adderWg.Add(3)
 
-	ac := adderChecker{wg: &adderWg, repository: nil}
+	ac := adderChecker{wg: &adderWg, repository: make(chan model.IPDetails, 3)}
 
 	sut := Resolver{
 		Adder: &ac,

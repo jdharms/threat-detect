@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jdharms/threat-detect/graph/model"
@@ -24,4 +25,24 @@ func dbModelToGraphQL(d IPDetails) model.IPDetails {
 	}
 
 	return res
+}
+
+type ErrNotFound struct {
+	ipAddr   string
+	innerErr error
+}
+
+func (e ErrNotFound) Error() string {
+	return fmt.Sprintf("details for ip address %s not found", e.ipAddr)
+}
+
+func (e ErrNotFound) Unwrap() error {
+	return e.innerErr
+}
+
+func newErrNotFound(ipAddr string, innerErr error) ErrNotFound {
+	return ErrNotFound{
+		ipAddr:   ipAddr,
+		innerErr: innerErr,
+	}
 }
