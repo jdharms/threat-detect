@@ -45,6 +45,9 @@ The command `$ make docker_volume` will create a Docker volume that will allow t
 to persist its data through multiple executions.  Alternatively, use the Docker command
 `docker volume create detect-data`.  `$ make clean_docker` will remove the volume.
 
+Implementation note: The Spamhaus DNSBL may return multiple result codes for a given IP address.  These codes are all returned inside the `response_code` field of the getIPDetails GraphQL query, separated by
+comma (',') characters.
+
 ## Development
 Clone the repository locally
 
@@ -72,4 +75,4 @@ The project is organized as follows:
 * github.com/DATA-DOG/go-sqlmock -- Used for writing unit tests for the persistence layer. go-sqlmock allows us to inject a mock database into our persistence code and assert on the queries/execs called.
 * github.com/google/uuid -- This library is used to generate random UUIDs.
 * github.com/jmoiron/sqlx -- A very thin abstraction layer on top of the standard library sql package.
-* github.com/mattn/go-sqlite3 -- Provides the database driver for SQLite3
+* github.com/mattn/go-sqlite3 -- Provides the database driver for SQLite3.

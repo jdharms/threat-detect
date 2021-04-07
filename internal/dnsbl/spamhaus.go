@@ -21,10 +21,10 @@ func (sc SpamhausClient) Query(ip string) (string, error) {
 		return "", newInvalidIPv4AddrError(ip)
 	}
 
-	// reverse ip octets
-	octets := strings.Split(ip, ".")
-	octets[0], octets[1], octets[2], octets[3] = octets[3], octets[2], octets[1], octets[0]
-	reversed := strings.Join(octets, ".")
+	reversed, err := reverseOctets(ip)
+	if err != nil {
+		return "", err
+	}
 
 	queryAddress := reversed + ".zen.spamhaus.org"
 
@@ -60,4 +60,14 @@ func newInvalidIPv4AddrError(ip string) InvalidIPv4AddrError {
 
 func (i InvalidIPv4AddrError) Error() string {
 	return fmt.Sprintf("%s is not a valid IPv4 address", i.ip)
+}
+
+func reverseOctets(addr string) (string, error) {
+	octets := strings.Split(addr, ".")
+	if len(octets) != 4 {
+		return "", newInvalidIPv4AddrError(addr)
+	}
+	octets[0], octets[1], octets[2], octets[3] = octets[3], octets[2], octets[1], octets[0]
+	reversed := strings.Join(octets, ".")
+	return reversed, nil
 }
