@@ -1,3 +1,8 @@
+## Note (4/27/2021)
+This project was created to fulfill a "coding challenge" as part of a job interview.  I've
+committed the assignment to [a file]('REDACTED GoLang Coding Challenger V3.pdf') after renaming
+the file to protect the innocent.
+
 # threat-detect
 `detect` is an http service that allows users to issue requests to check IPv4 addresses
 against the Spamhaus DNSBL.  It provides a GraphQL interface, uses SQLite to cache the lookup
