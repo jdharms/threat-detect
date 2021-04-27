@@ -1,6 +1,6 @@
 ## Note (4/27/2021)
 This project was created to fulfill a "coding challenge" as part of a job interview.  I've
-committed the assignment to [a file]('REDACTED GoLang Coding Challenger V3.pdf') after renaming
+committed the assignment to [a file](<./REDACTED GoLang Coding Challenger V3.pdf>) after renaming
 the file to protect the innocent.
 
 # threat-detect
